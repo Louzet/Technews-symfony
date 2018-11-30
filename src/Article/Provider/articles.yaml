@@ -1,0 +1,106 @@
+data:
+    article1 :
+        id : 1
+        titre : 'Expressive, beautiful syntax'
+        content : '<p>
+                      Value elegance, simplicity, and readability? You''ll fit right in.
+                      Laravel is designed for people just like you.
+                      If you need help getting started, check out Laracasts and our great documentation.
+                  </p>'
+        featuredimage : '9.jpg'
+        special : false
+        spotlight : false
+        datecreation : 2018-09-25 09:37:18
+        categorie:
+            id : 1
+            libelle : 'Politique'
+        auteur:
+            id : 1
+            prenom : 'Hugo'
+            nom : 'LIEGEARD'
+            email : 'wf3@hl-media.fr'
+
+    article2 :
+        id : 2
+        titre : 'Tailored for your team'
+        content : '<p>
+                      Whether you''re a solo developer or a 20 person team, Laravel is a breath of fresh air.
+                      Keep everyone in sync using Laravel''s database agnostic migrations and schema builder.
+                  </p>'
+        featuredimage : '4.jpg'
+        special : false
+        spotlight : true
+        datecreation : 2018-10-02 10:50:18
+        categorie:
+            id : 2
+            libelle : 'économie'
+        auteur:
+            id : 2
+            prenom : 'Mickael'
+            nom : 'LOUZET'
+            email : 'micklouzet@hotmail.fr'
+
+    article3 :
+        id : 3
+        titre : 'Modern toolkit. Pinch of magic'
+        content : '<p>
+                      An amazing ORM, painless routing, powerful queue library,
+                      and simple authentication give you the tools you need for modern, maintainable PHP.
+                      We sweat the small stuff to help you deliver amazing applications.
+                  </p>'
+        featuredimage : '6.jpg'
+        special : false
+        spotlight : true
+        datecreation : 2018-10-09 07:23:45
+        categorie:
+            id : 3
+            libelle : 'Tech'
+        auteur:
+            id : 2
+            prenom : 'Mickael'
+            nom : 'LOUZET'
+            email : 'micklouzet@hotmail.fr'
+
+    article4 :
+        id : 4
+        titre : 'Modern toolkit. Pinch of magic'
+        content : '<p>
+                      An amazing ORM, painless routing, powerful queue library,
+                      and simple authentication give you the tools you need for modern, maintainable PHP.
+                      We sweat the small stuff to help you deliver amazing applications.
+                  </p>'
+        featuredimage : '7.jpg'
+        special : false
+        spotlight : true
+        datecreation : 2018-10-16 07:23:45
+        categorie:
+            id : 4
+            libelle : 'Actualité'
+        auteur:
+            id : 2
+            prenom : 'Mickael'
+            nom : 'LOUZET'
+            email : 'micklouzet@hotmail.fr'
+
+    article5 :
+        id : 5
+        titre : 'Modern toolkit. Pinch of magic'
+        content : '<p>
+                      An amazing ORM, painless routing, powerful queue library,
+                      and simple authentication give you the tools you need for modern, maintainable PHP.
+                      We sweat the small stuff to help you deliver amazing applications.
+                  </p>'
+        featuredimage : '8.jpg'
+        special : false
+        spotlight : true
+        datecreation : 2018-10-23 07:10:00
+        categorie:
+            id : 2
+            libelle : 'économie'
+        auteur:
+            id : 2
+            prenom : 'Mickael'
+            nom : 'LOUZET'
+            email : 'micklouzet@hotmail.fr'
+
+

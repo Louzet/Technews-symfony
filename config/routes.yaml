@@ -1,0 +1,6 @@
+accueil:
+    path: /accueil
+    controller: FrameworkBundle:Redirect:redirect
+    defaults:
+        route: index
+        permanent: true
