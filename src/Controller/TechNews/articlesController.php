@@ -21,12 +21,10 @@ class articlesController extends Controller
      * @param $slug
      * @return Response
      */
-    public function article($article, $idArticle, $slug)
+    public function article(Article $article, $idArticle, $slug)
     {
         # exemple d'URL
         # politique/les-gilets-jaunes-mettent-le-feu-a-l-elysee_135153.html
-
-
 
         $suggestions = $this->getDoctrine()
             ->getRepository(Article::class)
