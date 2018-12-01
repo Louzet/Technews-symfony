@@ -54,6 +54,8 @@ class Membre
      */
     private $articles;
 
+    private $roles = [];
+
     public function __construct()
     {
         $this->articles = new ArrayCollection();

@@ -36,7 +36,6 @@ class ArticleRepository extends ServiceEntityRepository
             ;
     }
 
-
     /**
      * @param $idArticle
      * @param $idCategory
@@ -55,9 +54,40 @@ class ArticleRepository extends ServiceEntityRepository
             ;
     }
 
-    // /**
-    //  * @return Article[] Returns an array of Article objects
-    //  */
+    /**
+     * @return Article
+     * Récupérer les articles en spotlight
+     */
+    public function findSpotlightArticles()
+    {
+       return $this->createQueryBuilder('a')
+                   ->where('a.spotlight = 1')
+                   ->orderBy('a.id', 'DESC')
+                   ->setMaxResults(self::MAX_RESULT)
+                   ->getQuery()
+                   ->getResult()
+           ;
+    }
+
+    /**
+     * @return Article
+     * Récupérer les articles en special
+     */
+    public function findSpecialArticles()
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.special = 1')
+            ->orderBy('a.id', 'DESC')
+            ->setMaxResults(self::MAX_RESULT)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    /**
+     * @return Article[] Returns an array of Article objects
+     */
+
     /*
     public function findByExampleField($value)
     {
