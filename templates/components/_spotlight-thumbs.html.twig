@@ -3,19 +3,18 @@
         <div class="spotlight-item-thumb-img">
             <a href="{{ path('article.index', {
                 'categorie': article.categorie.slug,
-                'slug' : article.slug,
-                'id' : article.id
-
+                'slug': article.slug,
+                'id': article.id
             }) }}">
-                <img alt="" src="{{ asset('images/product/'~article.featuredImage) }}">
+                <img alt="{{ article.titre }}"
+                     src="{{ asset('images/product/'~article.featuredimage) }}"/>
             </a>
-            <a href="#" class="cate-tag">{{ article.categorie.nom }}</a>
+            <a href="{{ path('categorie.index', { 'slug' : article.categorie.slug }) }}" class="cate-tag">{{ article.categorie.nom }}</a>
         </div>
         <h3><a href="{{ path('article.index', {
                 'categorie': article.categorie.slug,
-                'slug' : article.slug,
-                'id' : article.id
-
+                'slug': article.slug,
+                'id': article.id
             }) }}">{{ article.titre }}</a></h3>
         <div class="meta-post">
             <a href="#">

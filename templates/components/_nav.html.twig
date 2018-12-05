@@ -2,11 +2,13 @@
 <nav class="menu-res hidden-lg hidden-md ">
     <div class="menu-res-inner">
         <ul>
-            <li><a href="{{ path('index') }}">Accueil</a></li>
-            <li><a href="{{ path('category.show', {"slug":"actualite"}) }}">Actualité</a></li>
-            <li><a href="{{ path('category.show', {"slug":"politique"}) }}">Politique</a></li>
-            <li><a href="{{ path('category.show', {"slug":"economie"}) }}">Economie</a></li>
-            <li><a href="{{ path('category.show', {"slug":"tech"}) }}">Tech</a></li>
+            <li><a href="{{ path('home') }}">Accueil</a></li>
+            {% for categorie in categories %}
+                <li><a href="{{ path('categorie.index', {
+                        'slug' : categorie.nom
+                    }) }}">{{ categorie.nom }}</a>
+                </li>
+            {% endfor %}
         </ul>
     </div>
 </nav>
@@ -16,9 +18,16 @@
         <header class="header">
             <div class="row">
                 <div class="col-md-3 col-sm-4 col-xs-12">
-                    <a href="{{ path('index') }}" class="logo">
-                        <img alt="Logo" src="{{ asset('images/logo.png') }}" />
+                    <a href="{{ path('home') }}" class="logo">
+                        <img alt="Logo" src="{{ asset('images/logo.png') }}" title="Accueil"/>
                     </a>
+                </div>
+                <div class="col-md-3 col-md-offset-6">
+                    <ul class="btn btn-danger pull-right my-auto">
+                        <li class="active">
+                            <a href="{{ path('membre.inscription') }}">Inscription</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </header>
@@ -29,11 +38,16 @@
                 <span>MENU</span>
             </div>
             <ul class="hidden-sm hidden-xs">
-                <li><a href="{{ path('index') }}">Accueil</a></li>
-                <li><a href="{{ path('category.show', {"slug":"actualite"}) }}">Actualité</a></li>
-                <li><a href="{{ path('category.show', {"slug":"politique"}) }}">Politique</a></li>
-                <li><a href="{{ path('category.show', {"slug":"economie"}) }}">économie</a></li>
-                <li><a href="{{ path('category.show', {"slug":"tech"}) }}">Tech</a></li>
+                <li {{ active == 'index'}}>
+                    <a href="{{ path('home') }}">Accueil</a>
+                </li>
+                {% for categorie in categories %}
+                    <li {{ active == categorie.slug ? 'class="current"' }}>
+                        <a href="{{ path('categorie.index', {
+                        "slug" : categorie.slug
+                        }) }}">{{ categorie.nom }}</a>
+                    </li>
+                {% endfor %}
             </ul>
             <div class="search-icon">
                 <div class="search-icon-inner">

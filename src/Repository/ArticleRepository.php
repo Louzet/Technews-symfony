@@ -16,6 +16,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 class ArticleRepository extends ServiceEntityRepository
 {
     const MAX_RESULT = 5;
+    const MAX_SUGGESTION = 3;
 
     public function __construct(RegistryInterface $registry)
     {
@@ -44,14 +45,19 @@ class ArticleRepository extends ServiceEntityRepository
     public function findArticlesSuggestions($idArticle, $idCategory)
     {
         return $this->createQueryBuilder('a')
-                    ->addGroupBy('a.categorie')
-                    ->where('a.id' != $idArticle)
-                    ->join('a.categorie', $idCategory)
-                    ->setMaxResults(self::MAX_RESULT - 2)
-                    ->addGroupBy('a.datecreation', 'DESC')
-                    ->getQuery()
-                    ->getResult()
-            ;
+            # Tous les articles d'une catégorie ($idCategorie)
+            ->where('a.categorie = :category_id')
+            ->setParameter('category_id', $idCategory)
+            # sauf un article ($idArticle)
+            ->andWhere('a.id != :article_id')
+            ->setParameter('article_id', $idArticle)
+            # 3 Articles maximum
+            ->setMaxResults(self::MAX_SUGGESTION)
+            # par ordre décroissant
+            ->orderBy('a.id', 'DESC')
+            # On finalise
+            ->getQuery()
+            ->getResult();
     }
 
     /**
@@ -60,7 +66,7 @@ class ArticleRepository extends ServiceEntityRepository
      */
     public function findSpotlightArticles()
     {
-       return $this->createQueryBuilder('a')
+        return $this->createQueryBuilder('a')
                    ->where('a.spotlight = 1')
                    ->orderBy('a.id', 'DESC')
                    ->setMaxResults(self::MAX_RESULT)
@@ -81,7 +87,7 @@ class ArticleRepository extends ServiceEntityRepository
             ->setMaxResults(self::MAX_RESULT)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
 
     /**

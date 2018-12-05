@@ -11,22 +11,22 @@ class CategoriesController extends Controller
 {
     /**
      * Allow to display the articles from one category
-     * @Route("/category/{slug}",
-     *     name="category.show",
+     * @Route("/categorie/{slug}",
+     *     name="categorie.index",
      *     methods={"GET"},
      *     requirements={"slug":"\w+"}
      *     )
-     * @param string $slug
+     * @param Categorie $categorie
      * @return Response
      */
-    public function category(string $slug, Categorie $categorie)
+    public function category(Categorie $categorie = null, $slug)
     {
         #######################################################
         # Méthode 1 :
-        # $categorie = $this->getDoctrine()
-        #                 ->getRepository(Categorie::class)
-        #                 ->findOneBy(['slug' => $slug]);
-        # $articles = $categorie->getArticles();
+        $categorie = $this->getDoctrine()
+                        ->getRepository(Categorie::class)
+                        ->findOneBy(['slug' => $slug]);
+        $articles = $categorie->getArticles();
 
         #######################################################
         # Méthode 2 :
@@ -37,11 +37,15 @@ class CategoriesController extends Controller
 
         #######################################################
         # Méthode 3 :
+        if (null === $categorie) {
+            // On redirige l'utilisateur sur la page d'accueil
+            return $this->redirectToRoute('home', [], Response::HTTP_MOVED_PERMANENTLY);
+        }
+
 
         return $this->render("category/category.html.twig", [
-            'articles'   =>  $categorie->getArticles(),
+            'articles'   =>  $articles,
             'categorie'  =>  $categorie
         ]);
     }
-
 }

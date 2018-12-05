@@ -2,28 +2,34 @@
 
 namespace App\Controller\TechNews;
 
+use App\Article\ArticleType;
+use App\Controller\TransliteratorSlugTrait;
 use App\Entity\Article;
 use App\Entity\Categorie;
 use App\Entity\Membre;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ArticlesController extends Controller
+class ArticlesController extends AbstractController
 {
+    use TransliteratorSlugTrait;
     /**
      * Allow to display an article from the slug and id
-     * @Route("/{category}/{slug}_{id}.{ext}",
+     * @Route("/{categorie}/{slug}_{id}.{ext}",
      *     name="article.index",
      *     requirements={"category":"\w+",
      *     "slug":"^[a-z0-9]+(?:-[a-z0-9]+)*$",
-     *     "id":"\d+"
-     *      },
+     *     "id":"\d+"},
      *     defaults={"ext":"html|php"}
      * )
      * @param Article $article
      * @param $id
      * @param $slug
+     * @param $categorie
      * @return Response
      */
     public function article(Article $article = null, $id, $slug, $categorie)
@@ -31,58 +37,135 @@ class ArticlesController extends Controller
         # exemple d'URL
         # politique/les-gilets-jaunes-mettent-le-feu-a-l-elysee_135153.html
 
-        if(null === $article)
-        {
+        if (null === $article) {
             # on redirige l'utilisateur sur la page index
-            return $this->redirectToRoute('index', [], Response::HTTP_MOVED_PERMANENTLY);
+            /* throw $this->createNotFoundException(
+                 "Nous n'avons pas trouvé l'article associé à l'id : " .$id
+             );*/
+            return $this->redirectToRoute('home', [], Response::HTTP_MOVED_PERMANENTLY);
         }
 
         # on verifie le slug
-
+        if ($article->getSlug() !== $slug || $article->getCategorie()->getSlug() !== $categorie) {
+            return $this->redirectToRoute('article.index', [
+                'categorie' => $article->getCategorie()->getSlug(),
+                'slug' => $article->getSlug(),
+                'id' => $id
+            ]);
+        }
 
         $suggestions = $this->getDoctrine()
             ->getRepository(Article::class)
-            ->findArticlesSuggestions($article->getId(), $article->getCategorie()->getId())
-            ;
+            ->findArticlesSuggestions($article->getId(), $article->getCategorie()->getId());
 
         return $this->render("articles/article.html.twig", [
-            'suggestions'   =>   $suggestions,
-            'slug'          =>   $slug
+            'article' => $article,
+            'suggestions' => $suggestions
         ]);
     }
+
+    /**
+     * Permet de créer un nouvel article
+     * @Route("/creer-un-article",
+     * name="article.new")
+     * @param Request $request
+     * @return Response
+     */
+    public function newArticle(Request $request)
+    {
+        $membre = $this->getDoctrine()->getRepository(Membre::class)->find(2);
+
+        $article = new Article();
+        $article->setMembre($membre);
+
+        $form = $this->createForm(ArticleType::class, $article)->handleRequest($request);
+
+        # On vérifie si le formulaire est soumis et est valide
+        if($form->isSubmitted() && $form->isValid())
+        {
+            # Traitement de l'upload de l'image
+            /**
+             * @var UploadedFile $featuredImage
+             */
+            $featuredImage = $article->getFeaturedImage();
+            $file          = $this->slugify($article->getTitre()).'.'.$featuredImage->guessExtension();
+
+            try{
+                $featuredImage->move($this->getParameter('articles_assets_dir'), $file);
+            }catch (FileException $exception){
+                throw new FileException("Impossible de télécharger l'image");
+            }
+
+            # Mise à jour de l'image
+            $article->setFeaturedImage($file);
+
+            # Mise à jour du slug
+            $article->setSlug($this->slugify($article->getTitre()));
+
+            # Sauvegarde en BDD
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($article);
+            $em->flush();
+
+            # Notification
+            $this->addFlash(
+                'notice',
+                'Félicitation votre article est enregistré !'
+            );
+
+            # Redirection vers l'article crée
+            return $this->redirectToRoute("article.index", [
+                "categorie"   => $article->getCategorie()->getSlug(),
+                "slug"        => $article->getSlug(),
+                "id"          => $article->getId()
+            ]);
+        }
+
+        # affichage du formulaire
+        return $this->render('articles/form.html.twig', [
+            'form'  => $form->createView()
+        ]);
+
+    }
+
+
     /**
      * Démonstration de l'ajout
      * d'un article avec Doctrine.
      * @Route("test/ajouter-un-article",
-     *     name="article_test")
+     *     name="article.test")
      */
     public function test()
     {
         # Création d'une Catégorie
         $categorie = new Categorie();
-        $categorie->setNom('Politique');
-        $categorie->setSlug('politique');
+        $categorie->setNom('Mode');
+        $categorie->setSlug('mode');
+
         # Création d'un Membre (Auteur de l'article)
         $membre = new Membre();
         $membre
-            ->setPrenom('Hugo')
-            ->setNom('LIEGEARD')
-            ->setEmail('hugo.liegeard@tech.news')
+            ->setPrenom('Mickael')
+            ->setNom('Louzet')
+            ->setEmail('mick_louzet@tech.news')
             ->setPassword('test')
-            ->setRoles(['ROLE_AUTEUR'])
-        ;
+            ->setRoles(['ROLE_AUTEUR']);
+
         # Création de l'article
         $article = new Article();
-        $article
-            ->setTitre("\"On a vingt ans de retard\" : avant d'accueillir la COP24, Katowice fait mine de combattre la pollution")
-            ->setSlug("on-a-vingt-ans-de-retard-avant-d-accueillir-la-cop24-katowice-fait-mine-de-combattre-la-pollution")
-            ->setContenu("<p>Dix mètres, puis cinquante, puis cent-cinquante. Le drone déploie ses ailes dans le ciel de Katowice, en Pologne, qui accueillera la COP24 du 3 au 14 décembre. Bourré de capteurs, l'engin renifle tout ce qui passe sous son nez. Au sol, Sylwia Jarosławska-Sobór contrôle les résultats en temps réel sur l'écran d'un ordinateur portable. \"Ici, c'est le taux de monoxyde de carbone, là, c'est la poussière dans l'air… Rien ne lui échappe, assure cette ingénieure du Głównego Instytutu Górnictwa. Après un vol, il arrive que les absorbeurs soient tout sales à cause des particules fines que l'appareil a trouvées sur son passage. C'est assez incroyable.\"</p>")
-            ->setFeaturedImage("16164503.jpg")
-            ->setSpotlight(0)
-            ->setSpecial(1)
-            ->setCategorie($categorie)
-            ->setMembre($membre)
-        ;
+        $article->setTitre("Blond cendré Tendance 2017: Couleur de cheveux pour les femmes romantiques");
+        $article->setSlug("blond-cendre-tendance-2017-couleur-de-cheveux-pour-les-femmes-romantiques");
+        $article->setContent("Froid mais élégant, le blond cendré c’est la couleur chic qui sied parfaitement 
+        aux beautés nordiques à la peau claire et aux yeux bleus. 
+        Zoom sur une coloration très tendance en 2017 : le blond cendré, Comment porter cette coloration tendre et
+        naturelle et comment l’entretenir.");
+        $article->setFeaturedImage("16164504.jpg");
+        $article->setSpotlight(0);
+        $article->setSpecial(1);
+        $article->setCategorie($categorie);
+        $article->setMembre($membre);
+
+
         # On sauvegarde le tout avec Doctrine
         $em = $this->getDoctrine()->getManager();
         $em->persist($categorie);
@@ -99,4 +182,6 @@ class ArticlesController extends Controller
             . $membre->getPrenom()
         );
     }
+
+
 }

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ArticleRepository")
@@ -18,16 +19,27 @@ class Article
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Vous devez saisir un titre")
+     * @Assert\Length(max="255",
+     *     maxMessage="Votre titre ne peut excéder {{ limit }} charactères"
+     * )
      */
     private $titre;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message="Vous devez saisir un contenu")
+     *
      */
-    private $contenu;
+    private $content;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Image(
+     *     mimeTypesMessage="Vérifiez le format de votre image",
+     *     maxSize="2M",
+     *     maxSizeMessage="Image Trop volumineuse"
+     * )
      */
     private $featuredImage;
 
@@ -48,6 +60,7 @@ class Article
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\DateTime(message="Date Invalide")
      */
     private $datecreation;
 
@@ -55,6 +68,7 @@ class Article
      * @ORM\ManyToOne(targetEntity="App\Entity\Categorie",
      *     inversedBy="articles")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="Vous devez choisir une catégorie")
      */
     private $categorie;
 
@@ -64,6 +78,14 @@ class Article
      * @ORM\JoinColumn(nullable=false)
      */
     private $membre;
+
+    /**
+     * Article constructor.
+     */
+    public function __construct()
+    {
+        $this->datecreation = new \DateTime();
+    }
 
     /**
      * @return int|null
@@ -95,18 +117,18 @@ class Article
     /**
      * @return null|string
      */
-    public function getContenu(): ?string
+    public function getContent(): ?string
     {
-        return $this->contenu;
+        return $this->content;
     }
 
     /**
-     * @param string $contenu
+     * @param string $content
      * @return Article
      */
-    public function setContenu(string $contenu): self
+    public function setContent(string $content): self
     {
-        $this->contenu = $contenu;
+        $this->content = $content;
 
         return $this;
     }
@@ -114,7 +136,7 @@ class Article
     /**
      * @return null|string
      */
-    public function getFeaturedImage(): ?string
+    public function getFeaturedImage()
     {
         return $this->featuredImage;
     }
@@ -123,11 +145,9 @@ class Article
      * @param string $featuredImage
      * @return Article
      */
-    public function setFeaturedImage(string $featuredImage): self
+    public function setFeaturedImage($featuredImage): void
     {
         $this->featuredImage = $featuredImage;
-
-        return $this;
     }
 
     /**
@@ -177,11 +197,14 @@ class Article
     }
 
     /**
-     * @param mixed $slug
+     * @param string $slug
+     * @return string
      */
-    public function setSlug($slug): void
+    public function setSlug(string $slug)
     {
         $this->slug = $slug;
+
+        return $this;
     }
 
     /**
@@ -193,7 +216,7 @@ class Article
     }
 
     /**
-     * @param \DateTimeInterface $datecreation
+     * @param \DateTimeInterface $dateCreation
      * @return Article
      */
     public function setDatecreation(\DateTimeInterface $datecreation): self

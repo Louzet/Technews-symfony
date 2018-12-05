@@ -10,8 +10,7 @@ class IndexController extends Controller
 {
     /**
      * home page
-     * @Route("/", name="index")
-     *
+     * @Route("/", name="home")
      * @return Response
      */
     public function index()
@@ -33,9 +32,31 @@ class IndexController extends Controller
 
         return $this->render('Front/index.html.twig', [
             'articles'   => $articles,
-            'spotlight'  => $spotlight,
-            'special'    => $special
+            'spotlight'  => $spotlight
         ]);
     }
 
+    /**
+     * Permet de gerer l'afichage de la sidebar
+     */
+    public function sidebar()
+    {
+        # Récupération du repository
+        $repository = $this->getDoctrine()
+            ->getRepository(Article::class);
+
+        # Récupérer les cinq derniers articles
+        $articles = $repository->findLatestsArticles();
+
+        # Récupérer les articles à la position spéciales
+        $specials = $repository->findSpecialArticles();
+
+        return $this->render('components/_sidebar.html.twig', [
+            'articles'   => $articles,
+            'specials'   => $specials
+        ]);
+
+
+
+    }
 }

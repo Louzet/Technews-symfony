@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Twig\Extension;
+namespace App\Services\Twig;
 
 use Symfony\Component\Asset\Packages;
 use Twig\Extension\AbstractExtension;
@@ -13,7 +13,7 @@ class TwigImageExtension extends AbstractExtension
 
     public function __construct(Packages $package)
     {
-       $this->package = $package;
+        $this->package = $package;
     }
 
     public function getFilters()
@@ -39,6 +39,4 @@ class TwigImageExtension extends AbstractExtension
 
         return '<img alt="" src="'.$image.'" class="img-responsive" style="height:'.$height.'px; width:'. $width.'px;">';
     }
-
-
 }
