@@ -15,6 +15,8 @@ class IndexController extends Controller
      */
     public function index()
     {
+        $user = $this->getUser();
+        dump($user);
         /**
          * Récupération des articles depuis le articles.yaml
          * $articles = $yamlProvider->getArticles();

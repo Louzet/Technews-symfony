@@ -45,11 +45,20 @@ class MembreController extends AbstractController
             );
 
             # Redirection vers la page de connexion
-            return $this->redirectToRoute("home");
+            return $this->redirectToRoute("membre.connexion");
         }
 
         return $this->render("membre/inscription.html.twig", [
             'form'  => $form->createView()
         ]);
     }
+
+
+
+
+
+
+
+
+
 }

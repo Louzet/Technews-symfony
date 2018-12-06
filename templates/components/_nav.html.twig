@@ -23,11 +23,20 @@
                     </a>
                 </div>
                 <div class="col-md-3 col-md-offset-6">
-                    <ul class="btn btn-danger pull-right my-auto">
-                        <li class="active">
-                            <a href="{{ path('membre.inscription') }}">Inscription</a>
-                        </li>
-                    </ul>
+
+                        {% if not app.user %}
+                            <span class="active">
+                                <a href="{{ path('membre.connexion') }}" class="btn btn-default">Connexion</a>
+                            </span>
+                            <span class="active">
+                                <a href="{{ path('membre.inscription') }}" class="btn btn-info">Inscription</a>
+                            </span>
+                        {% else %}
+                            <span class="active">
+                                <a href="{{ path('membre.deconnexion') }}" class="btn btn-danger">Déconnexion</a>
+                            </span>
+                        {% endif %}
+
                 </div>
             </div>
         </header>

@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     message="Ce email est déjà utilisé"
  * )
  */
-class Membre implements UserInterface
+class Membre implements UserInterface, \Serializable
 {
     /**
      * @ORM\Id()
@@ -336,6 +336,53 @@ class Membre implements UserInterface
      */
     public function eraseCredentials()
     {
-        // TODO: Implement eraseCredentials() method.
+
+    }
+
+    /**
+     * String representation of object
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     * @since 5.1.0
+     */
+    public function serialize()
+    {
+        return serialize([
+            $this->id,
+            $this->nom,
+            $this->prenom,
+            $this->email,
+            $this->password,
+            $this->dateInscription,
+            $this->derniereConnexion,
+            $this->articles,
+            $this->roles,
+            $this->conditions
+        ]);
+    }
+
+    /**
+     * Constructs the object
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     * The string representation of the object.
+     * </p>
+     * @return mixed
+     * @since 5.1.0
+     */
+    public function unserialize($serialized)
+    {
+        list(
+            $this->id,
+            $this->nom,
+            $this->prenom,
+            $this->email,
+            $this->password,
+            $this->dateInscription,
+            $this->derniereConnexion,
+            $this->articles,
+            $this->roles,
+            $this->conditions
+            ) = unserialize($serialized, ['allowed_classes' => false]);
     }
 }
