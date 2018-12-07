@@ -14,41 +14,44 @@
 {% block content %}
 
     <div class="row">
-
-    {% for message in app.flashes('notice') %}
-        <div class="alert alert-info">
-            {{ message }}
-        </div>
-    {% endfor %}
-
-    <!--colleft-->
-    <div class="col-md-8 col-sm-12">
-
-        <div class="box-caption">
-            <span>spotlight</span>
-        </div>
-
-        <!--spotlight-->
-        <section class="owl-carousel owl-spotlight">
-            {% for article in articles %}
-                {% if article.spotlight %}
-                    {% include 'components/_spotlight.html.twig' %}
-                {% endif %}
+        {% if app.flashes('notice') is not empty %}
+            {% for message in app.flashes('notice') %}
+                <div class="alert alert-info">
+                    {{ message }}
+                </div>
             {% endfor %}
-        </section>
+        {% endif %}
 
-        <!--spotlight-thumbs-->
-        <section class="spotlight-thumbs">
-            <div class="row">
-                {% for article in articles %}
-                    {% include 'components/_spotlight-thumbs.html.twig' %}
-                {% endfor %}
+        <!--colleft-->
+        <div class="col-md-8 col-sm-12">
+
+            <div class="box-caption">
+                <span>spotlight</span>
             </div>
-        </section>
 
-    </div>
+            <!--spotlight-->
+            <section class="owl-carousel owl-spotlight">
+                {% for article in articles %}
+                    {% if article.spotlight %}
+                        {% include 'components/_spotlight.html.twig' %}
+                    {% endif %}
+                {% endfor %}
+            </section>
+
+            <!--spotlight-thumbs-->
+            <section class="spotlight-thumbs">
+                <div class="row">
+                    {% for article in articles %}
+                        {% include 'components/_spotlight-thumbs.html.twig' %}
+                    {% endfor %}
+                </div>
+            </section>
+
+        </div>
+
 
         {# {% include 'components/_sidebar.html.twig' %} #}
         {{ render(controller('App\\Controller\\TechNews\\IndexController::sidebar')) }}
+    </div>
 
 {% endblock %}

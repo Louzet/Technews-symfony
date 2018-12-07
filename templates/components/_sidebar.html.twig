@@ -1,5 +1,45 @@
 <!--colright-->
 <div class="col-md-4 col-sm-12">
+    <div class="mb-5">
+        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+            <h3 class="text-center">Votre actu <strong>{{ app.user.prenom | capitalize }}</strong></h3>
+
+            <div class="text-center">
+                {% if is_granted('ROLE_ADMIN') %}
+                    <h4>Admin</h4>
+                {% elseif is_granted('ROLE_AUTEUR') %}
+                    <h4>Auteur</h4>
+                {% else %}
+                    <h4>Membre</h4>
+                {% endif %}
+            </div>
+
+            <ul class="list-group">
+                {% if article is defined
+                    and article
+                    and (article.isAuteur(app.user) and is_granted('ROLE_AUTEUR'))
+                %}
+                    <li class="list-group-item text-center">
+                        <a href="{{ path('article.update', {
+                            'id': article.id
+                        }) }}" class="list-group-item">Editer cet article</a>
+                    </li>
+
+                {% endif %}
+                {% if is_granted('ROLE_AUTEUR') %}
+                    <li class="list-group-item text-center">
+                        <a href="{{ path('article.list') }}" class="list-group-item">Mes articles</a>
+                    </li>
+                {% endif %}
+                {% if is_granted('ROLE_AUTEUR') %}
+                    <li class="list-group-item text-center">
+                        <a href="{{ path('article.new') }}" class="list-group-item">Rédiger un article</a>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+
     <!--tab popular-->
     <ul role="tablist" class="tab-popular">
         <li class="active">

@@ -47,4 +47,9 @@ class SecurityController extends AbstractController
 
     }
 
+    /**
+     * On pourrait définir encore d'autres méthodes comme
+     * mot de passe oublié, identifiant oublié, etc...
+     */
+
 }

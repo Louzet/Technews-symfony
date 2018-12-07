@@ -40,10 +40,16 @@
                                             'slug'     : article.slug,
                                             'id'       : article.id
                                         }) }}">
-                                            {{ article.membre.prenom ~ ' ' ~ article.membre.nom }}
                                         </a>
-                                        <em></em>
-                                        <span>{{ article.dateCreation | date('d/m/Y')}}</span>
+                                        <div>
+                                            {{ article.membre.prenom ~ ' ' ~ article.membre.nom }}
+                                        </div>
+
+                                        <span>
+                                            {% if app.user.id == article.membre.id %}
+                                                <a href="{{ path('article.update', {'id': article.membre.id }) }}" class="card-text" style="color: rgba(198,24,28,0.81);">Modifier cette article</a>
+                                            {% endif %}
+                                        </span>
                                     </div>
                                     {# ici repose notre accroche #}
                                     {{ article.content | summary }}

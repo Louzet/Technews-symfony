@@ -90,6 +90,17 @@ class ArticleRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findAllMyArticles($membreId)
+    {
+        return $this->createQueryBuilder('a')
+            ->addSelect('a')
+            ->where('a.membre = :membre_id')
+            ->setParameter('membre_id', $membreId)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     /**
      * @return Article[] Returns an array of Article objects
      */

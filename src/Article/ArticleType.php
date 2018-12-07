@@ -54,7 +54,8 @@ class ArticleType extends AbstractType
                 'required'    => true,
                 'label'       => false,
                 'attr'        => [
-                    'class'   =>"dropify"
+                    'class'   =>"dropify",
+                    'data_default_file' => $options['image_url']
                 ]
             ])
             ->add("special", CheckboxType::class, [
@@ -88,7 +89,8 @@ class ArticleType extends AbstractType
     {
         # Permet de dire au formulaire avec quel type d'instance il va travailler
         $resolver->setDefaults([
-            'data_class' => Article::class
+            'data_class' => Article::class,
+            'image_url' => null
         ]);
     }
 }

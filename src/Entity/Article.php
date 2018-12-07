@@ -263,4 +263,15 @@ class Article
 
         return $this;
     }
+
+    /**
+     * Verifie si un membre est bien l'auteur
+     * d'un article
+     * @param Membre|null $membre
+     * @return bool
+     */
+    public function isAuteur(Membre $membre = null): bool
+    {
+        return $membre && $this->getMembre()->getId() === $membre->getId();
+    }
 }

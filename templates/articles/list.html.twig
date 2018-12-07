@@ -1,0 +1,39 @@
+{% extends 'layout.html.twig' %}
+
+{% set active = "Mes articles" %}
+
+{% block page_title %}
+    Liste des articles
+{% endblock %}
+
+{% block content %}
+    <h2>Mes articles</h2>
+    <div class="col-md-4 col-xs-12">
+        {% for article in articles %}
+            <div class="card text-center">
+                <div class="card-header alert alert-info">
+                    {{ article.categorie.nom }}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ article.titre }}</h5>
+                    <div>
+                        <p class="card-text px-5">{{ article.membre.prenom ~ ' ' ~ article.membre.nom }}</p>
+                    </div>
+                    <a href="{{ path('article.update', {
+                        'id': article.id
+                        })
+                    }}" class="btn btn-primary">
+                        <ion-icon name="create"></ion-icon>
+                        Modifier
+                    </a>
+                </div>
+                <div class="card-footer text-muted">
+                    {#timestamp#}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+
+

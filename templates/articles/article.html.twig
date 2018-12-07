@@ -26,6 +26,11 @@
                     <span>
                         {{ article.dateCreation | date('d/m/Y') }}
                     </span>
+                    <span style="margin-left: 1rem;">
+                        {% if app.user.id == article.membre.id %}
+                            <a href="{{ path('article.update', {'id': article.membre.id }) }}" class="card-text" style="color: rgba(198,24,28,0.81);">Modifier cette article</a>
+                        {% endif %}
+                    </span>
                 </div>
 
                 <div>
@@ -99,7 +104,9 @@
             {% endif %}
         </div>
         {#{% include 'components/_sidebar.html.twig' %}#}
-        {{ render(controller('App\\Controller\\TechNews\\IndexController::sidebar')) }}
+        {{ render(controller('App\\Controller\\TechNews\\IndexController::sidebar', {
+            'article':article
+        })) }}
     </div>
 {% endblock %}
 

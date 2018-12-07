@@ -7,16 +7,39 @@ use App\Controller\TransliteratorSlugTrait;
 use App\Entity\Article;
 use App\Entity\Categorie;
 use App\Entity\Membre;
+use App\Repository\ArticleRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * Class ArticlesController
+ * @package App\Controller\TechNews
+ */
 class ArticlesController extends AbstractController
 {
     use TransliteratorSlugTrait;
+
+    /**
+     * @var ArticleRepository
+     */
+    private $articleRepository;
+
+    /**
+     * ArticlesController constructor.
+     * @param ArticleRepository $articleRepository
+     */
+    public function __construct(ArticleRepository $articleRepository)
+    {
+        $this->articleRepository = $articleRepository;
+    }
+
     /**
      * Allow to display an article from the slug and id
      * @Route("/{categorie}/{slug}_{id}.{ext}",
@@ -66,17 +89,20 @@ class ArticlesController extends AbstractController
 
     /**
      * Permet de créer un nouvel article
-     * @Route("/creer-un-article",
+     * @Route("/article/creer-un-article",
      * name="article.new")
      * @param Request $request
+     * @Security("has_role('ROLE_AUTEUR')")
      * @return Response
      */
     public function newArticle(Request $request)
     {
-        $membre = $this->getDoctrine()->getRepository(Membre::class)->find(2);
+        # $membre = $this->getDoctrine()->getRepository(Membre::class)->find(2);
 
         $article = new Article();
-        $article->setMembre($membre);
+
+        # on insère le membre récuperé en session
+        $article->setMembre($this->getUser());
 
         $form = $this->createForm(ArticleType::class, $article)->handleRequest($request);
 
@@ -126,6 +152,101 @@ class ArticlesController extends AbstractController
             'form'  => $form->createView()
         ]);
 
+    }
+
+    /**
+     * Affiche la liste de tous les articles déjà crées
+     * par un utilisateur
+     * @Route("/article", name="article.list")
+     */
+    public function listArticle()
+    {
+        $articles = $this->articleRepository->findAllMyArticles($this->getUser());
+        dump($articles);
+        return $this->render('articles/list.html.twig', [
+            'articles'   => $articles
+        ]);
+    }
+
+    /**
+     * @Route("/article/modifier-un-article/{id}", name="article.update",
+     *     requirements={"id":"\d+"}
+     * )
+     * on verifie que l'utilisateur est l'auteur de cette article
+     * @Security("article.isAuteur(user)")
+     * @param Request $request
+     * @param Article $article
+     * @param Packages $packages
+     * @return Response
+     */
+    public function editArticle(Request $request, Article $article, Packages $packages)
+    {
+        $options = [
+            'image_url' => $packages->getUrl('images/products/'.$article->getFeaturedImage())
+        ];
+
+        #Récupération de l'image de base
+        $featuredImageDefault = $article->getFeaturedImage();
+
+        $article->setFeaturedImage(
+            new File($this->getParameter('articles_assets_dir').'/'.$article->getFeaturedImage())
+        );
+
+        $form = $this->createForm(ArticleType::class, $article, $options)
+                     ->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()){
+            #dump($article);
+            # 1. Traitement de l'upload de l'image
+
+            /**
+             * récupération de la nouvelle image, si elle a été modifiée
+             * @var UploadedFile $featuredImage
+             */
+            $featuredImage = $article->getFeaturedImage();
+
+            if (null !== $featuredImage) {
+
+                $fileName = $this->slugify($article->getTitre())
+                    . '.' . $featuredImage->guessExtension();
+
+                try {
+                    $featuredImage->move(
+                        $this->getParameter('articles_assets_dir'),
+                        $fileName
+                    );
+                } catch (FileException $e) {
+
+                }
+
+                # Mise à jour de l'image
+                $article->setFeaturedImage($fileName);
+
+            } else {
+                $article->setFeaturedImage($featuredImageDefault);
+            }
+
+            # 2. Mise à jour du Slug
+            $article->setSlug($this->slugify($article->getTitre()));
+
+            # 3. Sauvegarde en BDD
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($article);
+            $em->flush();
+
+            # 4. Notification
+            $this->addFlash('notice',
+                'Félicitation, votre article est en ligne !');
+
+            # 5. Redirection vers l'article créé
+            return $this->redirectToRoute('article.list', [
+                'id' => $article->getId()
+            ]);
+        }
+
+        return $this->render('articles/update.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 
 

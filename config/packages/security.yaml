@@ -30,13 +30,15 @@ security:
                 default_target_path: home
             provider: membre_provider
             logout:
-                  path: /deconnexion
-                  target: /
+                path: /deconnexion
+                target: /
+            # on redirige vers la page d'accueil
             # https://symfony.com/doc/current/security/form_login_setup.html
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
-        # - { path: ^/, roles: ROLE_USER }
+        - { path: ^/creer-un-article, roles: ROLE_AUTEUR }

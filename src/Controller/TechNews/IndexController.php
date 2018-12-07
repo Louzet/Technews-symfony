@@ -15,8 +15,7 @@ class IndexController extends Controller
      */
     public function index()
     {
-        $user = $this->getUser();
-        dump($user);
+
         /**
          * Récupération des articles depuis le articles.yaml
          * $articles = $yamlProvider->getArticles();
@@ -40,8 +39,10 @@ class IndexController extends Controller
 
     /**
      * Permet de gerer l'afichage de la sidebar
+     * @param Article|null $article
+     * @return Response
      */
-    public function sidebar()
+    public function sidebar(?Article $article = null)
     {
         # Récupération du repository
         $repository = $this->getDoctrine()
@@ -55,7 +56,8 @@ class IndexController extends Controller
 
         return $this->render('components/_sidebar.html.twig', [
             'articles'   => $articles,
-            'specials'   => $specials
+            'specials'   => $specials,
+            'article'    => $article
         ]);
 
 

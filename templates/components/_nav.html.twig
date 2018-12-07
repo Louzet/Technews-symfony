@@ -23,20 +23,18 @@
                     </a>
                 </div>
                 <div class="col-md-3 col-md-offset-6">
-
-                        {% if not app.user %}
-                            <span class="active">
-                                <a href="{{ path('membre.connexion') }}" class="btn btn-default">Connexion</a>
-                            </span>
-                            <span class="active">
-                                <a href="{{ path('membre.inscription') }}" class="btn btn-info">Inscription</a>
-                            </span>
-                        {% else %}
-                            <span class="active">
-                                <a href="{{ path('membre.deconnexion') }}" class="btn btn-danger">Déconnexion</a>
-                            </span>
-                        {% endif %}
-
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                        <span class="active">
+                            <a href="{{ path('membre.deconnexion') }}" class="btn btn-danger pull-right">Déconnexion</a>
+                        </span>
+                    {% else %}
+                        <span class="active">
+                            <a href="{{ path('membre.connexion') }}" class="btn btn-default">Connexion</a>
+                        </span>
+                        <span class="active">
+                            <a href="{{ path('membre.inscription') }}" class="btn btn-info">Inscription</a>
+                        </span>
+                    {% endif %}
                 </div>
             </div>
         </header>
