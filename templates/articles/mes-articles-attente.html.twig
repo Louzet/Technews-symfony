@@ -1,0 +1,72 @@
+{% extends "layout.html.twig" %}
+
+{% set active = title %}
+
+{% block page_title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        {% if articles is not empty %}
+        <!--colleft-->
+        <div class="col-md-8 col-sm-12">
+            <div class="box-caption">
+                <span>{{ title | title }}</span>
+            </div>
+            <!--list-news-cate-->
+            <div class="list-news-cate">
+                {%  for article in articles %}
+                    <article class="news-cate-item">
+                        <div class="row">
+                            <div class="col-md-5 col-sm-5 col-xs-12">
+                                <a href="{{ path('article.index', {
+                                    'categorie': article.categorie.slug,
+                                    'slug'     : article.slug,
+                                    'id'       : article.id
+                                }) }}">
+                                    <img alt="{{ article.titre }}" src="{{ asset('images/product/'~article.featuredImage) }}">
+                                </a>
+                            </div>
+                            <div class="col-md-7 col-sm-7 col-xs-12">
+                                <h3><a href="{{ path('article.index', {
+                                        'categorie': article.categorie.slug,
+                                        'slug'     : article.slug,
+                                        'id'       : article.id
+                                    }) }}">{{ article.titre | title }}</a></h3>
+                                <div class="meta-post">
+                                    <a href="{{ path('article.index', {
+                                        'categorie': article.categorie.slug,
+                                        'slug'     : article.slug,
+                                        'id'       : article.id
+                                    }) }}">
+                                    </a>
+                                    <div>
+                                        {{ article.membre.prenom ~ ' ' ~ article.membre.nom }}
+                                    </div>
+
+                                    <span>
+                                            {% if app.user.id == article.membre.id %}
+                                                <a href="{{ path('article.update', {'id': article.membre.id }) }}" class="card-text" style="color: rgba(198,24,28,0.81);">Modifier cette article</a>
+                                            {% endif %}
+                                        </span>
+                                </div>
+                                {# ici repose notre accroche #}
+                                {{ article.content | summary }}
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+            {% else %}
+                <div class="alert alert-danger">
+                    <strong>Aucun article pour le moment...</strong>
+                </div>
+            {%  endif %}
+
+        </div>
+
+        {{ render(controller('App\\Controller\\TechNews\\IndexController::sidebar')) }}
+    </div>
+{% endblock %}
+

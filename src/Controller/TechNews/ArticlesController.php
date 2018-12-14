@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Workflow\Exception\LogicException;
+use Symfony\Component\Workflow\Registry;
 
 /**
  * Class ArticlesController
@@ -69,7 +71,8 @@ class ArticlesController extends AbstractController
         }
 
         # on verifie le slug
-        if ($article->getSlug() !== $slug || $article->getCategorie()->getSlug() !== $categorie) {
+        if ($article->getSlug() !== $slug || $article->getCategorie()->getSlug() !== $categorie)
+        {
             return $this->redirectToRoute('article.index', [
                 'categorie' => $article->getCategorie()->getSlug(),
                 'slug' => $article->getSlug(),
@@ -92,10 +95,11 @@ class ArticlesController extends AbstractController
      * @Route("/article/creer-un-article",
      * name="article.new")
      * @param Request $request
-     * @Security("has_role('ROLE_AUTEUR')")
+     * @param Registry $workflows
      * @return Response
+     * @Security("has_role('ROLE_AUTEUR')")
      */
-    public function newArticle(Request $request)
+    public function newArticle(Request $request, Registry $workflows)
     {
         # $membre = $this->getDoctrine()->getRepository(Membre::class)->find(2);
 
@@ -103,6 +107,9 @@ class ArticlesController extends AbstractController
 
         # on insère le membre récuperé en session
         $article->setMembre($this->getUser());
+
+        # on récupère le workflow
+        $workflow = $workflows->get($article);
 
         $form = $this->createForm(ArticleType::class, $article)->handleRequest($request);
 
@@ -128,10 +135,25 @@ class ArticlesController extends AbstractController
             # Mise à jour du slug
             $article->setSlug($this->slugify($article->getTitre()));
 
-            # Sauvegarde en BDD
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($article);
-            $em->flush();
+            # Modification du status du workflow
+            # petite couche de sécurité grâce au try
+            try{
+                $workflow->apply($article, 'to_review');
+
+                # Sauvegarde en BDD
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($article);
+                $em->flush();   # Insertion en base de donnée
+            }
+            catch (LogicException $exception){
+                # Transition non autorisé
+                # Notification
+                $this->addFlash(
+                    'notice',
+                    'Transition workflow non autorisée !'
+                );
+            }
+
 
             # Notification
             $this->addFlash(
@@ -157,7 +179,7 @@ class ArticlesController extends AbstractController
     /**
      * Affiche la liste de tous les articles déjà crées
      * par un utilisateur
-     * @Route("/article", name="article.list")
+     * @Route("/mes-articles", name="article.list")
      */
     public function listArticle()
     {
@@ -173,7 +195,7 @@ class ArticlesController extends AbstractController
      *     requirements={"id":"\d+"}
      * )
      * on verifie que l'utilisateur est l'auteur de cette article
-     * @Security("article.isAuteur(user)")
+     * @Security("article.isAuteur(user) or has_role('ROLE_EDITEUR')")
      * @param Request $request
      * @param Article $article
      * @param Packages $packages
@@ -181,6 +203,7 @@ class ArticlesController extends AbstractController
      */
     public function editArticle(Request $request, Article $article, Packages $packages)
     {
+
         $options = [
             'image_url' => $packages->getUrl('images/products/'.$article->getFeaturedImage())
         ];
@@ -216,7 +239,7 @@ class ArticlesController extends AbstractController
                         $fileName
                     );
                 } catch (FileException $e) {
-
+                    return new Response("Une erreur est survenue");
                 }
 
                 # Mise à jour de l'image
@@ -248,6 +271,42 @@ class ArticlesController extends AbstractController
             'form' => $form->createView()
         ]);
     }
+
+    /**
+     * Afficher les articles d'un Auteur
+     * @Route("/articles-articles/en-attente",
+     *     name="articles.en.attente")
+     */
+    public function mesArticlesEnAttente()
+    {
+        $auteur = $this->getUser();
+
+        # Récupération des articles en attente
+        $articles = $this->getDoctrine()
+                        ->getRepository(Article::class)
+                        ->findAuthorArticlesByStatus($auteur->getId(), 'review');
+
+        return $this->render("articles/mes-articles-attente.html.twig", [
+            'articles'  => $articles,
+            'title'     => "Mes articles en attente"
+        ]);
+    }
+
+    public function mesArticlesPublished()
+    {
+        $auteur = $this->getUser();
+
+        # Récupération des articles en attente
+        $articles = $this->getDoctrine()
+            ->getRepository(Article::class)
+            ->findAuthorArticlesByStatus($auteur->getId(), 'published');
+
+        return $this->render("articles/mes-articles-attente.html.twig", [
+            'articles'  => $articles,
+            'title'     => "Mes articles en publiés"
+        ]);
+    }
+
 
 
     /**

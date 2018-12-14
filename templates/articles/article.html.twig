@@ -10,7 +10,7 @@
     <div class="row">
         <!--colleft-->
         <div class="col-md-8 col-sm-12">
-            {% for message in app.flashes %}
+            {% for message in app.flashes('notice') %}
                 <div class="alert alert-info">
                     {{ message }}
                 </div>

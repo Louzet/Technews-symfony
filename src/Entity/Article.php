@@ -80,6 +80,12 @@ class Article
     private $membre;
 
     /**
+     * @var array
+     * @ORM\Column(type="array")
+     */
+    private $status;
+
+    /**
      * Article constructor.
      */
     public function __construct()
@@ -274,4 +280,21 @@ class Article
     {
         return $membre && $this->getMembre()->getId() === $membre->getId();
     }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status): void
+    {
+        $this->status = $status;
+    }
+
 }

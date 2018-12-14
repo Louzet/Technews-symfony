@@ -1,9 +1,11 @@
 <?php
 namespace App\Services\Twig;
 
+use App\Entity\Article;
 use App\Entity\Categorie;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Extension\AbstractExtension;
 
 class AppExtension extends AbstractExtension
@@ -14,15 +16,25 @@ class AppExtension extends AbstractExtension
 
     const NB_SUMMARY_CHAR = 200;
 
+    private $membre;
+
     /**
      * AppExtension constructor.
      * @param EntityManagerInterface $manager
      * @param SessionInterface $session
+     * @param TokenStorageInterface $tokenStorage
      */
-    public function __construct(EntityManagerInterface $manager, SessionInterface $session)
+    public function __construct(EntityManagerInterface $manager, SessionInterface $session, TokenStorageInterface $tokenStorage)
     {
         $this->em = $manager;
+
         $this->session = $session;
+
+        # récupération d'un membre si un token existe
+        if($tokenStorage->getToken())
+        {
+            $this->membre  = $tokenStorage->getToken()->getUser();
+        }
     }
 
 
@@ -30,7 +42,8 @@ class AppExtension extends AbstractExtension
     {
         return [
             new \Twig_Function('list_all', [$this, 'getCategorieFunction'], ['is_safe' =>['html']]),
-            new \Twig_Function('isUserInvited', [$this, 'isUserInvitedFunction'])
+            new \Twig_Function('isUserInvited', [$this, 'isUserInvitedFunction']),
+            new \Twig_Function('pendingArticles', [$this, 'pendingArticlesFunction'])
         ];
     }
 
@@ -50,6 +63,12 @@ class AppExtension extends AbstractExtension
     public function isUserInvitedFunction()
     {
         return $this->session->get('invitedUserModal');
+    }
+
+    public function pendingArticlesFunction()
+    {
+        return $this->em->getRepository(Article::class)
+            ->countAuthorArticlesByStatus($this->membre->getId(), 'review');
     }
 
     public function getSummaryFilter(string $text)

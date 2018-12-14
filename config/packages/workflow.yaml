@@ -1,0 +1,55 @@
+# config/packages/workflow.yaml
+framework:
+    workflows:
+        technews_publishing:
+            type: 'workflow'
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: 'multiple_state'
+                arguments:
+                    - 'status'
+            supports:
+                - App\Entity\Article
+            initial_place: draft
+            places: # definitions de mes places
+                - draft
+                - review
+                - editor
+                - corrector
+                - correction_ok
+                - publisher
+                - publisher_ok
+                - published
+                - refused
+            transitions: # passage d'un état à un autre
+                to_review:
+                    from: draft
+                    to:   review
+                to_approval:
+                    from: review
+                    to:   editor
+                editor_ok:
+                    from: editor
+                    to:   [corrector, publisher]
+                editor_fail:
+                    from: editor
+                    to:   review
+                editor_refused:
+                    from: editor
+                    to:   refused
+                corrector_approuved:
+                    from: corrector
+                    to:   correction_ok
+                corrector_failure:
+                    from: corrector
+                    to:   editor
+                publisher_approuved:
+                    from: publisher
+                    to:   publisher_ok
+                publisher_failure:
+                    from: publisher
+                    to:   editor
+                to_be_published:
+                    from: [publisher_ok, correction_ok]
+                    to:   published

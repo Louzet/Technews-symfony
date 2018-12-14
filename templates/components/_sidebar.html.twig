@@ -17,7 +17,9 @@
             <ul class="list-group">
                 {% if article is defined
                     and article
-                    and (article.isAuteur(app.user) and is_granted('ROLE_AUTEUR'))
+                    and (article.isAuteur(app.user)
+                    and is_granted('ROLE_AUTEUR')
+                    or  is_granted('ROLE_EDITEUR'))
                 %}
                     <li class="list-group-item text-center">
                         <a href="{{ path('article.update', {
@@ -34,6 +36,10 @@
                 {% if is_granted('ROLE_AUTEUR') %}
                     <li class="list-group-item text-center">
                         <a href="{{ path('article.new') }}" class="list-group-item">Rédiger un article</a>
+                    </li>
+                    <li class="list-group-item text-center">
+                        <a href="{{ path('articles.en.attente') }}" class="list-group-item">Articles en Attente</a>
+                        <span class="badge"></span>
                     </li>
                 {% endif %}
             </ul>

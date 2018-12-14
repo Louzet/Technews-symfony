@@ -42,3 +42,10 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/creer-un-article, roles: ROLE_AUTEUR }
+
+    role_hierarchy:
+        ROLE_AUTEUR: ROLE_MEMBRE
+        ROLE_CORRECTEUR: ROLE_AUTEUR
+        ROLE_EDITEUR: ROLE_AUTEUR
+        ROLE_PUBLISHER:  [ROLE_EDITEUR, ROLE_CORRECTEUR]
+        ROLE_ADMIN: [ROLE_PUBLISHER]

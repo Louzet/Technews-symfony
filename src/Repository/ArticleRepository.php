@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Article;
 use App\Entity\Categorie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -100,6 +101,42 @@ class ArticleRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    /**
+     * @return \Doctrine\ORM\QueryBuilder
+     * Retourne tous les articles d'un auteur par rapport aux
+     * status definis par le workflow
+     */
+    public function findAuthorArticlesByStatus($idAuteur, $status)
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.membre = :membre_id')
+            ->setParameter('membre_id', $idAuteur)
+            ->andWhere('a.status LIKE :status')
+            ->setParameter('status', "%$status%")
+            ->orderBy('a.datecreation')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function countAuthorArticlesByStatus($idAuteur, $status)
+    {
+        try {
+            return $this->createQueryBuilder('a')
+                ->addSelect('COUNT(a)')
+                ->where('a.membre = :membre_id')
+                ->setParameter('membre_id', $idAuteur)
+                ->andWhere('a.status LIKE :status')
+                ->setParameter('status', "%$status%")
+                ->getQuery()
+                ->getSingleScalarResult();
+        }
+        catch (NonUniqueResultException $nonUniqueResultException){
+            return 0;
+        }
+    }
+
 
     /**
      * @return Article[] Returns an array of Article objects
