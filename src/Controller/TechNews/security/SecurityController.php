@@ -18,10 +18,10 @@ class SecurityController extends AbstractController
      */
     public function connexion(AuthenticationUtils $authenticationUtils): Response
     {
-        if($this->getUser()){
-            #Si l'utilisateur est déjà connecté, on le redirige
-            return $this->redirectToRoute('home');
-        }
+            if($this->getUser()){
+                #Si l'utilisateur est déjà connecté, on le redirige
+                return $this->redirectToRoute('home');
+            }
         # Récupération du formulaire de connexion
         $form = $this->createForm(MembreLoginType::class, [
             # Dernier email saisie par l'utilisateur.

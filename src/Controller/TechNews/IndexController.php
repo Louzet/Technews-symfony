@@ -15,13 +15,12 @@ class IndexController extends Controller
      */
     public function index()
     {
-
+        if(!$this->getUser() || !$this->get('session')->getId()){
+            $this->redirectToRoute('membre.connexion', [], Response::HTTP_MOVED_PERMANENTLY);
+        }
         /**
          * Récupération des articles depuis le articles.yaml
          * $articles = $yamlProvider->getArticles();
-         */
-
-        /**
          * on va récupérer désormais les articles depuis Doctrine
          */
         $repository = $this->getDoctrine()

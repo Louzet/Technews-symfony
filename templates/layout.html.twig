@@ -18,11 +18,14 @@
     <link href="{{ asset('css/normalize.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('css/owl.carousel.min.css') }}" rel="stylesheet" />
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+          rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+          crossorigin="anonymous">
     <!-- Material Design Bootstrap -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.15/css/mdb.min.css" rel="stylesheet">
     <!-- Main CSS (SCSS Compile) -->
     <link href="{{ asset('css/main.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/newsletter.css') }}" rel="stylesheet" />
     <!-- JavaScripts -->
     <!--<script src="js/modernizr.js"></script>-->
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -45,7 +48,9 @@
     {% include 'components/_nav.html.twig' %}
     {% block content %}{% endblock %}
     {% include 'components/_footer.html.twig' %}
-
+    {% if isUserInvited() %}
+        {{ render(controller('App\\Controller\\TechNews\\NewsletterController::Newsletter')) }}
+    {% endif %}
 {% endblock %}
 
 {% block javascript %}
@@ -58,4 +63,11 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.15/js/mdb.min.js"></script>
     <script src="{{ asset('js/main.js') }}"></script>
     <script src="https://unpkg.com/ionicons@4.4.8/dist/ionicons.js"></script>
+    {% if isUserInvited() %}
+    <script>
+        $(function() {
+            $('#newsletterModal').modal('show');
+        });
+    </script>
+    {% endif %}
 {% endblock %}

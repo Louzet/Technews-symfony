@@ -162,7 +162,7 @@ class ArticlesController extends AbstractController
     public function listArticle()
     {
         $articles = $this->articleRepository->findAllMyArticles($this->getUser());
-        dump($articles);
+
         return $this->render('articles/list.html.twig', [
             'articles'   => $articles
         ]);

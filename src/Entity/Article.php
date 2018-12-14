@@ -143,7 +143,7 @@ class Article
 
     /**
      * @param string $featuredImage
-     * @return Article
+     * @return void
      */
     public function setFeaturedImage($featuredImage): void
     {
@@ -216,7 +216,7 @@ class Article
     }
 
     /**
-     * @param \DateTimeInterface $dateCreation
+     * @param \DateTimeInterface $datecreation
      * @return Article
      */
     public function setDatecreation(\DateTimeInterface $datecreation): self

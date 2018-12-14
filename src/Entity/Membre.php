@@ -218,7 +218,7 @@ class Membre implements UserInterface, \Serializable
      * @param string $timestamp
      * @return Membre
      */
-    public function setDerniereConnexion(string $timestamp = 'now'): self
+    public function setDerniereConnexion(string $timestamp = 'Europe/Paris'): self
     {
         $this->derniereConnexion = new \DateTime($timestamp);
 
